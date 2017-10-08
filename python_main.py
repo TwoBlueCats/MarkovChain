@@ -9,7 +9,7 @@ from chain_word import Chain_word
 
 TOKEN = "358621240:AAF9_Jhl56-lrvR75q7Np7PLjFYVmKKpH9Q"
 tester_TOKEN = "286496122:AAGED92TDcccXHGJmgyz5oJcCcZ4TI-vTrM"
-bot = telebot.TeleBot(tester_TOKEN)
+bot = telebot.TeleBot(TOKEN)
 AdminID = 186898465
 
 
@@ -83,7 +83,7 @@ class ChainText:
         context = ['.'] * (self.__n - len(first))
         context += first
 
-        for i in range(ln):
+        for i in range(ln - len(first)):
             context_t = tuple(deepcopy(context))
             context_size = self.__context_count_.get(context_t, 0)
             if context_size == 0:
@@ -118,14 +118,14 @@ class ChainText:
             self.__context_count_) + ']'
 
 
-ch = ChainText([2, 0, {}, {}])
+ch = ChainText([1, 0, {}, {}])
 try:
     fl = open("model.txt", "r")
     ch = ChainText(json.load(fl))
     fl.close()
 except Exception as err:
     # print(str(err))
-    ch = ChainText([2, 0, {}, {}])
+    ch = ChainText([1, 0, {}, {}])
     try:
         with open("data.txt", 'r', encoding='utf-8') as my_file:
             text = my_file.read()
@@ -144,7 +144,7 @@ def help_message(message):
                      "Привет, напиши /gen <number>, чтобы сгенерировать текст, состоящий из этого числа слов")
 
 
-@bot.message_handler(commands=['generate'])
+# @bot.message_handler(commands=['generate'])
 def generate_message(message):
     global ch
     try:
@@ -152,7 +152,7 @@ def generate_message(message):
         try:
             text_len = int(d[1])
             first_words = d[2:]
-            print(type(first_words))
+            print(len(first_words))
         except:
             bot.send_message(message.chat.id, "Не соответствует формату запроса: /generate <number> <words>")
             return
@@ -183,7 +183,7 @@ def gen_message(message):
             text_len = 0
         cnt = 1000
         while cnt >= 0:
-            ans = ch.generate(text_len if text_len else 10000000)
+            ans = ch.generate(text_len if text_len else 10000000, [])
             if ans[0] == text_len or text_len == 0:
                 bot.send_message(message.chat.id, " ".join(ans[1]))
                 break
